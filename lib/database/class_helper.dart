@@ -55,4 +55,19 @@ class ClassHelper{
     });
   }
 
+  getClassesBySubject(int id) async {
+    final Database db = await DatabaseUtils.getDatabase();
+
+    final List<Map<String, dynamic>> maps = await db.query('class',where: "subjectId = $id");
+
+    return List.generate(maps.length, (i) {
+      return ClassModel(
+        id: maps[i]['id'],
+        time: maps[i]['time'],
+        day: maps[i]['day'],
+        subjectId: maps[i]['subjectId'],
+      );
+    });
+  }
+
 }

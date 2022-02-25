@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:organize_college/bloc/classes/class_cubit.dart';
+import 'package:organize_college/bloc/classes/class_state.dart';
 import 'package:organize_college/bloc/subjects/subjects_cubit.dart';
 import 'package:organize_college/bloc/subjects/subjects_state.dart';
+import 'package:organize_college/models/class_model.dart';
 import 'package:organize_college/models/subject_model.dart';
 import 'package:organize_college/utils/colors.dart';
 import 'package:organize_college/utils/icons_info.dart';
+
+import '../utils/utils.dart';
 
 class DetailSubjectPage extends StatefulWidget {
   final int id;
@@ -29,6 +35,7 @@ class _DetailSubjectPageState extends State<DetailSubjectPage> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       context.read<SubjectsCubit>().getSubjectById(widget.id);
+      context.read<ClassCubit>().getClassesBySubject(widget.id);
     });
     return Scaffold(
       body: BlocBuilder<SubjectsCubit, SubjectsState>(
@@ -134,11 +141,74 @@ class _DetailSubjectPageState extends State<DetailSubjectPage> {
             ];
           },
           body: Column(
-            children: [],
+            children: [
+              BlocBuilder<ClassCubit, ClassState>(
+                  builder: (context, ClassState snapshot) {
+                switch (snapshot.runtimeType) {
+                  case ClassFilled:
+                  case ClassInitial:
+                    return _createWidgetClassesFilled(snapshot.getClasses(),subjectModel);
+                  case ClassLoading:
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryColor,
+                      ),
+                    );
+                  case ClassError:
+                    return const Center(
+                      child: Text("ERROR"),
+                    );
+                  default:
+                    return _createWidgetClassesFilled(snapshot.getClasses(),subjectModel);
+                }
+              })
+            ],
           ),
         ),
         _buildFab()
       ],
+    );
+  }
+
+  Widget _createWidgetClassesFilled(List<ClassModel> classes,SubjectModel subjectModel) {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Text("Clases"),
+          ),
+          Container(
+            height: 142,
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 0),
+              itemBuilder: (context, index) {
+                return Container(
+                  width: 142,
+                  margin: EdgeInsets.symmetric(vertical: 15,horizontal: 5),
+                  child: Card(
+                    child:Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(Utils.getDayById(classes[index].day).substring(0,3),style: GoogleFonts.nunito(textStyle:  const TextStyle(
+                          fontSize: 30,
+                        ),),),
+                        Text(classes[index].time,style: GoogleFonts.nunito(textStyle:  const TextStyle(
+                          fontSize: 16
+                        ),))
+                      ],
+                    ),
+                  ),
+                );
+              },
+              itemCount: classes.length,
+              scrollDirection: Axis.horizontal,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

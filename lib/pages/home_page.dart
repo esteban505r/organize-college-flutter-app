@@ -277,11 +277,12 @@ class HomePage extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
             child: InkWell(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+               await  Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => DetailSubjectPage(snapshot.getSubjects()[index].id??1)));
+                context.read<SubjectsCubit>().getSubjects();
               },
               child: Card(
                   shape: RoundedRectangleBorder(

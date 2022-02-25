@@ -34,4 +34,10 @@ class ClassCubit extends Cubit<ClassState>{
       emit(ClassError(Strings.errorInsertSubject));
     }
   }
+
+  Future<void> getClassesBySubject(int id) async {
+    emit(ClassLoading());
+    List<ClassModel> classes = await _classHelper.getClassesBySubject(id);
+    emit(ClassFilled(classes));
+  }
 }
